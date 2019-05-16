@@ -14,6 +14,8 @@ cv::Mat ShowPhase(cv::Mat m);
 
 cv::Mat_<Pix> AddZeroPhase(cv::Mat intensity);
 
+cv::Mat_<Pix> ImportAsPhase(cv::Mat phase);
+
 void SaveResults(cv::Mat_<Pix> holo, std::string filename, bool crop=0);
 
 cv::Mat Edge(cv::Mat m);
@@ -43,3 +45,5 @@ void ASDX(cv::Mat holo, float d, float px, float py, float l);
 void ASDY(cv::Mat holo, float d, float px, float py, float l);
 
 void ASD(cv::Mat holo, float d, float px, float py, float l);
+
+void LoopOfDeath(cv::Mat holoXSRC, cv::Mat holoYSRC, cv::Mat SRC2d, float minpx, float minpy, float l, float mind, float maxP, float maxD, float iP, float iD, cv::Mat ref, bool FileWrite=0);

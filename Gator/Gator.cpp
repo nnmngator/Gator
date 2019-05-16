@@ -1,5 +1,5 @@
 #include "Gator.h"
-
+#include "quality_metrics_OpenCV.h"
 
 #define SHOWRES
 
@@ -64,6 +64,15 @@ cv::Mat_<Pix> AddZeroPhase(cv::Mat intensity) {
 		holo_pix = Pix(A, 0);
 	});
 	return holo;
+}
+
+cv::Mat_<Pix> ImportAsPhase(cv::Mat phase) {
+	cv::Mat_<Pix> holo = cv::Mat_<Pix>(phase.rows, phase.cols, 0.f);
+	holo.forEach([&](auto& holo_pix, const int* pos)->void {
+		float phi = phase.at<uchar>(pos[0], pos[1]);
+		holo_pix = Pix(std::cosf(phi/255.0f *2.0f *CV_PI), std::sinf(phi / 255.0f *2.0f *CV_PI));
+	});
+		return holo;
 }
 
 
@@ -339,4 +348,102 @@ void ASD(cv::Mat holo, float d, float px, float py, float l = 632.8e-9) {
 	FFTShift<Pix>(holo);
 	IFFT(holo);
 	FFTShift<Pix>(holo);
+}
+
+void LoopOfDeath(cv::Mat holoXSRC, cv::Mat holoYSRC,cv::Mat SRC2d, float minpx, float minpy, float l, float mind, float maxP, float maxD, float iP, float iD, cv::Mat ref, bool FileWrite)
+{
+	cv::Rect roi = cv::Rect(holoXSRC.cols / 4, holoXSRC.rows / 4, holoXSRC.cols / 2, holoXSRC.rows / 2);
+	for (float d = mind; d < maxD; d = d + iD)
+	{
+
+
+		for (float px = minpx; px < maxP; px = px + iP)
+		{
+			float py = px;
+			cv::Mat holoX = holoXSRC.clone();
+			cv::Mat holoY = holoYSRC.clone();
+
+			// X
+			ASDX(holoX, d, px, py, l);
+			NormAmp(holoX);
+			// Y
+			ASDY(holoY, d, px, py, l);
+			NormAmp(holoY);
+			//// X + Y
+			cv::Mat holo3;
+			cv::Mat test3;
+			ASDX(holoX, -d, px, py, l);
+			ASDY(holoY, -d, px, py, l);
+
+			auto xprop = ShowInt(holoX);
+
+			auto yprop = ShowInt(holoY);
+
+			float xnonz = (float)cv::countNonZero(xprop) / xprop.total();
+			float ynonz = (float)cv::countNonZero(yprop) / yprop.total();
+
+			system("cls");
+			//std::cout << "xnonz = " << xnonz << "\nynonz= " << ynonz << std::endl;
+
+			cv::addWeighted(holoX, xnonz, holoY, ynonz, 1, holo3);
+			/*
+			bitwise operations dont seem to work
+				cv::bitwise_or(holoX, holoY, test3);
+				imwrite("xor.bmp", ShowInt(test3));
+	*/
+
+			std::stringstream ss;
+			ss << "export/374um/Dist" << d * 1e+3 << "mm.bmp";
+			std::string filename = ss.str();
+
+			cv::Mat inte = ShowInt(holo3);
+			cv::normalize(inte, inte, 0, 255, cv::NORM_MINMAX);
+			if (FileWrite) {
+				cv::imwrite(filename, inte);
+			}
+
+
+			ss.str("");
+			ss.clear();
+
+			inte.convertTo(inte, CV_64F);
+			double SSIM = qm::ssim(ref, inte, 4, 1);
+			//			double PSNR = qm::psnr(ref, inte, 4);
+			std::ofstream ostrm("1D.txt", std::ofstream::app);
+			ostrm << d * 1e+3 << "," << px * 1e+6 << "," << SSIM << '\n';
+			ostrm.close();
+		//	std::cout << "Propagation Distance\nCurrent: " << d << "m, Max:" << maxD << "m \nSampling\nCurrent: " << px * 1e+6 << "um, Max:" << maxP * 1e+6 << "um \nIteration: " << progress << " out of " << nostep << "\nProgress: " << progress / nostep * 100 << "\n" << "dif = " << sum << "\n" << std::endl;
+			//progress++;
+			std::cout << "SSIM = " << SSIM << "\n" << std::endl;
+
+			ss << "export/374um/CropDist" << d * 1e+3 << "mm.bmp";
+			filename = ss.str();
+			inte = ShowInt(holo3(roi));
+			cv::normalize(inte, inte, 0, 255, cv::NORM_MINMAX);
+			if (FileWrite) {
+				cv::imwrite(filename, inte);
+			}
+			//2Dprop
+			cv::Mat holo2d = SRC2d.clone();
+
+			ASD(holo2d, d, px, py, l);
+			NormAmp(holo2d);
+			ASD(holo2d, -d, px, py, l);
+			cv::Mat h2d = ShowInt(holo2d);
+			h2d.convertTo(h2d, CV_64F);
+
+			SSIM = qm::ssim(ref, h2d, 4, 1);
+			cv::imwrite("2prop.bmp", h2d);
+			cv::imwrite("ref.bmp", ref);
+
+			std::ofstream ostrm2("2D.txt", std::ofstream::app);
+			ostrm2 << d * 1e+3 << "," << px * 1e+6 << "," << SSIM << '\n';
+			ostrm2.close();
+
+
+			ss.str("");
+			ss.clear();
+		}
+	}
+
 }
