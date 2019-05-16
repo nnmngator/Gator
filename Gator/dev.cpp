@@ -114,50 +114,13 @@ int main()
 
 */
 
-	float nostep = ((maxD - mind) / iD) * 1;//((maxP - minpx) / iP);
-
-	LoopOfDeath(holoXSRC, holoYSRC,SRC2d, minpx, minpy, l, mind, maxP, maxD, iP, iD,ref);
+	LoopOfDeath(holoXSRC, holoYSRC,SRC2d, minpx, minpy, l, mind, maxP, maxD, iP, iD,ref,1);
+	
+	
+	
 	cv::destroyAllWindows();
 	system("pause");
 	return 0;
 }
 
-
-int xmain1()
-{
-	cv::Mat lena = cv::imread("C:\\CGH\\Projects\\Propagator3000\\Propagator3000\\input_wframe.bmp", cv::IMREAD_GRAYSCALE);
-
-	cv::Mat_<Pix> holo = cv::Mat_<Pix>(lena.rows, lena.cols, 0.f);
-
-	holo.forEach([&](auto& holo_pix, const int* pos) -> void {
-		//float phi = random(-CV_PI, CV_PI);
-		float A = lena.at<uchar>(pos[0], pos[1]);
-		//holo_pix = Pix(A*std::cosf(phi), A*std::sinf(phi));
-		holo_pix = Pix(A, 0);
-	});
-
-	//cv::copyMakeBorder(holo, holo, 256, 256, 256, 256, cv::BORDER_CONSTANT, cv::Scalar(0));
-
-	float px, py, l, d;
-	px = py = 4e-6f;
-	l = 632.8e-9f;
-	d = 0.05f;
-
-	ShowInt(holo);
-	Lens(holo, -2 * d, l, px, py);
-	ASD(holo, d, px, py, l);
-	ShowInt(holo);
-	ShowPhase(holo);
-
-
-	Lens(holo, 2 * d, l, px, py);
-	NormAmp(holo);
-	ShowPhase(holo);
-
-	ASD(holo, -d, px, py, l);
-	ShowInt(holo);
-	ShowPhase(holo);
-
-	return 0;
-}
 

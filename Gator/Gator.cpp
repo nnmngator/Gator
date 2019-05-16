@@ -60,8 +60,9 @@ cv::Mat_<Pix> AddZeroPhase(cv::Mat intensity) {
 	holo.forEach([&](auto& holo_pix, const int* pos) -> void {
 		//float phi = random(-CV_PI, CV_PI);
 		float A = intensity.at<uchar>(pos[0], pos[1]);
+		float phi = 0;
 		//holo_pix = Pix(A*std::cosf(phi), A*std::sinf(phi));
-		holo_pix = Pix(A, 0);
+		holo_pix = Pix(A*(std::cosf(phi)), A*(std::sinf(phi)));
 	});
 	return holo;
 }
@@ -398,6 +399,7 @@ void LoopOfDeath(cv::Mat holoXSRC, cv::Mat holoYSRC,cv::Mat SRC2d, float minpx, 
 
 			cv::Mat inte = ShowInt(holo3);
 			cv::normalize(inte, inte, 0, 255, cv::NORM_MINMAX);
+			std::cout << filename;
 			if (FileWrite) {
 				cv::imwrite(filename, inte);
 			}
