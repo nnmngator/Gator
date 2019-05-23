@@ -46,4 +46,6 @@ void ASDY(cv::Mat holo, float d, float px, float py, float l);
 
 void ASD(cv::Mat holo, float d, float px, float py, float l);
 
+cv::Mat_<Pix> AddAmplitudes(cv::Mat m1, cv::Mat m2);
+
 void LoopOfDeath(cv::Mat holoXSRC, cv::Mat holoYSRC, cv::Mat SRC2d, float minpx, float minpy, float l, float mind, float maxP, float maxD, float iP, float iD, cv::Mat ref, bool FileWrite=0);

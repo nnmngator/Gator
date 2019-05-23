@@ -28,7 +28,7 @@ int main()
 {
 	//Import and creation of Mats
 
-	std::string path = "C:\\input_wframe.bmp";
+	std::string path = "C:\\test4.bmp";
 	cv::Mat_<Pix> holoXSRC, holoYSRC;
 	cv::Mat cmn;
 	cv::Mat	src = cv::imread(path, cv::IMREAD_GRAYSCALE);
@@ -52,69 +52,53 @@ int main()
 	const float minpx = 3.74e-6f;
 	const float	minpy = 3.74e-6f;
 	const float l = 632.8e-9f;
-	const float mind = 200e-3f;
-
+	const float mind = 450e-3f;
+	
+	//Ultra bad 2D prop, okay 1D
+	//mind = 450e-3f;
+	//mind = 800e-3f;
+	//mind = 700e-3f;
 	const float maxP = 4e-6f;
 	const float maxD = 201e-3f;
 	const float iP = 5e-7f;
 	const float iD = 10e-3f;
 	float progress = 0;
 	
-	
-	/*
-	std::string filename;
+	// FRAME IS FUCKED
+	//Pixels in the corners are missing
+	//artifacts in Yprop are results of bad/uncomplete frame
+	//check width of narrowest zones in phase - 2pix= bad, 4+pix=okay (dont fight nyquist)
+	//Eventually this leads to propagation of multi thousand pixel wide holograms
+	//Transposition in 2D propagation is big chokepoint for that kind of operations
 
-	cv::Mat inputExp = ShowInt(holoTest);
-	filename = "input";
-
-	SaveResults(holoTest, path + filename, 1);
-
-
-	ASDX(holoTest, mind, minpx, minpy, l);
-	ASDY(holoTest, mind, minpx, minpy, l);
-	NormAmp(holoTest);
-	ASD(holoTest, -mind, minpx, minpy, l);
-
-
-	cv::Mat intTest = ShowInt(holoTest);
-	filename = "XtoYto2D";
-	SaveResults(holoTest, path + filename, 1);
-
-	*/
-	/*
-	here bitwise ops work
-	cv::Mat holotemp;
-	cv::bitwise_xor(holoXSRC, holoYSRC, holotemp);
-	cv::imwrite("niewiem.bmp",ShowInt(holotemp));
-	ShowPhase(holotemp);
-
-*/
-	/*ASDX(holoXSRC, mind, minpx, minpy, l);
+//	ShowInt(holoXSRC(roi));
+	ASDX(holoXSRC, mind, minpx, minpy, l);
 	NormAmp(holoXSRC);
+	ASDX(holoXSRC, -mind, minpx, minpy, l);
+	//ShowInt(holoXSRC(roi));
+
+	ShowLogInt(holoYSRC);
+
 	ASDY(holoYSRC, mind, minpx, minpy, l);
 	NormAmp(holoYSRC);
+	ASDY(holoYSRC, -mind, minpx, minpy, l);
 
+	ShowLogInt(holoXSRC(roi));
+	ShowInt(holoYSRC(roi));
+	SaveResults(holoXSRC, "holoX", 1);
+	SaveResults(holoYSRC, "holoY", 1);
 
-	cv::Mat Pha = ShowPhase(holoXSRC) + ShowPhase(holoYSRC);
+	auto holo3 = AddAmplitudes(holoXSRC, holoYSRC);
+	SaveResults(holo3, "holo3", 1);
 
+	ShowInt(holo3(roi));
 
-	cv::Mat_<Pix> tester = ImportAsPhase(Pha);
-	 
-	ShowInt(tester);
-	ShowPhase(tester);
+	ASD(SRC2d, mind, minpx, minpy, l);
+	NormAmp(SRC2d);
+	ASD(SRC2d, -mind, minpx, minpy, l);
 
-	ASDX(tester, -mind, minpx, minpy, l);
-	ShowInt(tester);
-	ShowPhase(tester);
-
-
-	ASDY(tester, -mind, minpx, minpy, l);
-	ShowInt(tester);
-	ShowPhase(tester);
-
-*/
-
-	LoopOfDeath(holoXSRC, holoYSRC,SRC2d, minpx, minpy, l, mind, maxP, maxD, iP, iD,ref,1);
+	ShowInt(SRC2d(roi));
+//	LoopOfDeath(holoXSRC, holoYSRC,SRC2d, minpx, minpy, l, mind, maxP, maxD, iP, iD,ref,1);
 	
 	
 	

@@ -288,6 +288,8 @@ void NormAmp(cv::Mat m) {
 	});
 }
 
+
+
 void ASDX(cv::Mat holo, float d, float px, float py, float l = 632.8e-9) {
 	FFTShiftX<Pix>(holo);
 	FFTX(holo);
@@ -349,6 +351,17 @@ void ASD(cv::Mat holo, float d, float px, float py, float l = 632.8e-9) {
 	FFTShift<Pix>(holo);
 	IFFT(holo);
 	FFTShift<Pix>(holo);
+}
+
+
+cv::Mat_<Pix> AddAmplitudes(cv::Mat m1, cv::Mat m2) {
+	cv::Mat_<Pix> holo = m1.clone();
+	holo.forEach([&](auto& holo_pix, const int* pos)->void {		
+		auto a1 = std::abs(holo_pix);
+		auto a2 = std::abs(m2.at<Pix>(pos));
+		holo_pix = std::polar<float>(a1 + a2, 0.f);
+	});
+	return holo;
 }
 
 void LoopOfDeath(cv::Mat holoXSRC, cv::Mat holoYSRC,cv::Mat SRC2d, float minpx, float minpy, float l, float mind, float maxP, float maxD, float iP, float iD, cv::Mat ref, bool FileWrite)
