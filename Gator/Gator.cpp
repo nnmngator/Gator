@@ -195,6 +195,39 @@ void AddFrame(cv::Mat m) {
 	});
 }
 
+void AddFrameVertical(cv::Mat m) {
+	m.forEach<uchar>([&](uchar& pix, const int* pos) {
+		int row = pos[0];
+		int col = pos[1];
+
+		if (col == 0 || col == (m.cols - 1))
+		{
+			pix = 255;
+		}
+		else
+		{
+			return;
+		}
+	});
+}
+
+void AddFrameHorizontal(cv::Mat m) {
+	m.forEach<uchar>([&](uchar& pix, const int* pos) {
+		int row = pos[0];
+		int col = pos[1];
+
+		if (row == 0 || row == (m.rows - 1) )
+		{
+			pix = 255;
+		}
+		else
+		{
+			return;
+		}
+	});
+}
+
+
 
 void ConvertToEdge(cv::Mat src, cv::Mat_<Pix> &holoX, cv::Mat_<Pix> &holoY, cv::Mat &cmn) {
 	//calculate both derivatives (frame is lost)
@@ -206,8 +239,14 @@ void ConvertToEdge(cv::Mat src, cv::Mat_<Pix> &holoX, cv::Mat_<Pix> &holoY, cv::
 	cv::subtract(edgesY, cmn, edgesY);
 
 	//Reintroduce frame
-	AddFrame(edgesX);
-	AddFrame(edgesY);
+
+	//Should i add frame that is propagated or one that is lost?
+	AddFrameVertical(edgesY);
+	AddFrameHorizontal(edgesX);
+
+	cv::imwrite("x.bmp", edgesX);
+	cv::imwrite("y.bmp", edgesY);
+
 	//Create RE IM array
 	//image imported as RE part, IM left empty(0)
 
@@ -218,41 +257,9 @@ void ConvertToEdge(cv::Mat src, cv::Mat_<Pix> &holoX, cv::Mat_<Pix> &holoY, cv::
 }
 
 
-template<class T>
-void FFTShift(cv::Mat m) {
-	m.forEach<T>([&](T& pix, const int * pos) -> void {
-		int row = pos[0], col = pos[1];
-		if (row >= m.rows / 2) return;
-		int next_row = row + m.rows / 2;
-		int next_col = (col < (m.cols / 2)) ? (col + (m.cols / 2)) : (col - (m.cols / 2));
-		T& next_pix = m.at<T>(next_row, next_col);
-		std::swap(next_pix, pix);
-	});
-}
 
-template<class T>
-void FFTShiftX(cv::Mat m) {
-	m.forEach<T>([&](T& pix, const int * pos) -> void {
-		int row = pos[0], col = pos[1];
-		if (col >= m.cols / 2) return;
-		int next_row = row;
-		int next_col = col + m.cols / 2;
-		T& next_pix = m.at<T>(next_row, next_col);
-		std::swap(next_pix, pix);
-	});
-}
 
-template<class T>
-void FFTShiftY(cv::Mat m) {
-	m.forEach<T>([&](T& pix, const int * pos) -> void {
-		int row = pos[0], col = pos[1];
-		if (row >= m.rows / 2) return;
-		int next_row = row + m.rows / 2;
-		int next_col = col;
-		T& next_pix = m.at<T>(next_row, next_col);
-		std::swap(next_pix, pix);
-	});
-}
+
 
 void FFTX(cv::Mat m) {
 	cv::dft(m, m, cv::DFT_COMPLEX_OUTPUT | cv::DFT_ROWS);
@@ -299,7 +306,7 @@ void ASDX(cv::Mat holo, float d, float px, float py, float l = 632.8e-9) {
 	int M = holo.cols;
 
 	holo.forEach<Pix>([&](auto& holo_pix, const int* pos) -> void {
-		int n = pos[0] - N / 2, m = pos[1] - M / 2;
+		int n = pos[0] - N / 2 - 1, m = pos[1] - M / 2 - 1;
 		float f = std::pow(m / (M * py), 2.f);
 		holo_pix *= std::exp(Pix(0, -CV_PI * l*d*f));
 	});
@@ -321,7 +328,7 @@ void ASDY(cv::Mat holo, float d, float px, float py, float l = 632.8e-9) {
 	int M = holo.cols;
 
 	holo.forEach<Pix>([&](auto& holo_pix, const int* pos) -> void {
-		int n = pos[0] - N / 2, m = pos[1] - M / 2;
+		int n = pos[0] - N / 2 - 1, m = pos[1] - M / 2 -1 ;
 		float f = std::pow(n / (N * px), 2.f);
 		holo_pix *= std::exp(Pix(0, -CV_PI * l*d*f));
 	});
@@ -343,7 +350,7 @@ void ASD(cv::Mat holo, float d, float px, float py, float l = 632.8e-9) {
 	int M = holo.cols;
 
 	holo.forEach<Pix>([&](auto& holo_pix, const int* pos) -> void {
-		int n = pos[0] - N / 2, m = pos[1] - M / 2;
+		int n = pos[0] - N / 2 - 1, m = pos[1] - M / 2 - 1;
 		float f = std::pow(n / (N * px), 2.f) + std::pow(m / (M * py), 2.f);
 		holo_pix *= std::exp(Pix(0, -CV_PI * l*d*f));
 	});

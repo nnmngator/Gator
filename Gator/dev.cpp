@@ -25,7 +25,7 @@ T random(T min, T max) {
 
 
 int main()
-{
+{	
 	//Import and creation of Mats
 
 	std::string path = "C:\\test4.bmp";
@@ -39,7 +39,7 @@ int main()
 
 	//Middle of image
 	cv::Rect roi = cv::Rect(holoXSRC.cols / 4, holoXSRC.rows / 4, holoXSRC.cols / 2, holoXSRC.rows / 2);
-	
+
 	cv::Mat ref = Edge(src);
 	AddFrame(ref);
 	cv::Mat_<Pix> SRC2d = AddZeroPhase(ref);
@@ -53,7 +53,7 @@ int main()
 	const float	minpy = 3.74e-6f;
 	const float l = 632.8e-9f;
 	const float mind = 450e-3f;
-	
+
 	//Ultra bad 2D prop, okay 1D
 	//mind = 450e-3f;
 	//mind = 800e-3f;
@@ -63,28 +63,52 @@ int main()
 	const float iP = 5e-7f;
 	const float iD = 10e-3f;
 	float progress = 0;
+
+/*
+	ASDX(holoXSRC, mind,minpx,minpy,l);
+	SaveResults(holoXSRC, "1stProp");
 	
+	NormAmp(holoXSRC);
+	SaveResults(holoXSRC, "1stPropNorm");
+
+	ASDX(holoXSRC, -mind,minpx,minpy,l); 
+	SaveResults(holoXSRC, "2ndProp");
+
+*/
+
 	// FRAME IS FUCKED
 	//Pixels in the corners are missing
 	//artifacts in Yprop are results of bad/uncomplete frame
 	//check width of narrowest zones in phase - 2pix= bad, 4+pix=okay (dont fight nyquist)
 	//Eventually this leads to propagation of multi thousand pixel wide holograms
-	//Transposition in 2D propagation is big chokepoint for that kind of operations
+	//Transposition in 2D propagation is big chokepoint!!!!!!!!!!!! 
+	//How to avoid 
+//Frame experiments
+	//SaveResults(holoXSRC, "FrameX");
+	//SaveResults(holoYSRC, "FrameY");
+	//SaveResults(SRC2d, "Frame2D");
+	//frames in input are okay
+	//in output corners of frame are moved 1px inwards
+	//WTF
 
-//	ShowInt(holoXSRC(roi));
+	//THE MAIN 1D VS 2D LOGIC
+
+	ShowInt(holoXSRC(roi));
 	ASDX(holoXSRC, mind, minpx, minpy, l);
 	NormAmp(holoXSRC);
 	ASDX(holoXSRC, -mind, minpx, minpy, l);
-	//ShowInt(holoXSRC(roi));
+	ShowInt(holoXSRC(roi));
 
-	ShowLogInt(holoYSRC);
+	ShowInt(holoYSRC(roi));
 
 	ASDY(holoYSRC, mind, minpx, minpy, l);
 	NormAmp(holoYSRC);
 	ASDY(holoYSRC, -mind, minpx, minpy, l);
 
-	ShowLogInt(holoXSRC(roi));
+	ShowInt(holoXSRC(roi));
 	ShowInt(holoYSRC(roi));
+
+
 	SaveResults(holoXSRC, "holoX", 1);
 	SaveResults(holoYSRC, "holoY", 1);
 
@@ -98,10 +122,10 @@ int main()
 	ASD(SRC2d, -mind, minpx, minpy, l);
 
 	ShowInt(SRC2d(roi));
-//	LoopOfDeath(holoXSRC, holoYSRC,SRC2d, minpx, minpy, l, mind, maxP, maxD, iP, iD,ref,1);
-	
-	
-	
+	//	LoopOfDeath(holoXSRC, holoYSRC,SRC2d, minpx, minpy, l, mind, maxP, maxD, iP, iD,ref,1);
+
+
+
 	cv::destroyAllWindows();
 	system("pause");
 	return 0;

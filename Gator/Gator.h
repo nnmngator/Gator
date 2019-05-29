@@ -5,6 +5,41 @@
 
 typedef std::complex<float> Pix;
 
+template<class T>
+void FFTShift(cv::Mat m) {
+	m.forEach<T>([&](T& pix, const int * pos) -> void {
+		int row = pos[0], col = pos[1];
+		if (row >= m.rows / 2) return;
+		int next_row = row + m.rows / 2;
+		int next_col = (col < (m.cols / 2)) ? (col + (m.cols / 2)) : (col - (m.cols / 2));
+		T& next_pix = m.at<T>(next_row, next_col);
+		std::swap(next_pix, pix);
+	});
+}
+
+template<class T>
+void FFTShiftX(cv::Mat m) {
+	m.forEach<T>([&](T& pix, const int * pos) -> void {
+		int row = pos[0], col = pos[1];
+		if (col >= m.cols / 2) return;
+		int next_row = row;
+		int next_col = col + m.cols / 2;
+		T& next_pix = m.at<T>(next_row, next_col);
+		std::swap(next_pix, pix);
+	});
+}
+
+template<class T>
+void FFTShiftY(cv::Mat m) {
+	m.forEach<T>([&](T& pix, const int * pos) -> void {
+		int row = pos[0], col = pos[1];
+		if (row >= m.rows / 2) return;
+		int next_row = row + m.rows / 2;
+		int next_col = col;
+		T& next_pix = m.at<T>(next_row, next_col);
+		std::swap(next_pix, pix);
+	});
+}
 
 cv::Mat ShowLogInt(cv::Mat m);
 
