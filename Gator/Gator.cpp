@@ -1,7 +1,7 @@
 #include "Gator.h"
 #include "quality_metrics_OpenCV.h"
 
-#define SHOWRES
+//#define SHOWRES
 
 cv::Mat ShowLogInt(cv::Mat m) {
 
@@ -242,14 +242,15 @@ void ConvertToEdge(cv::Mat src, cv::Mat_<Pix> &holoX, cv::Mat_<Pix> &holoY, cv::
 	//calculate both derivatives (frame is lost)
 	cv::Mat edgesX = EdgeX(src);
 	cv::Mat edgesY = EdGey(src);
+	cv::Sobel(src, edgesX, CV_8UC1, 1, 0);
+	cv::Sobel(src, edgesY, CV_8UC1, 0, 1);
+
 	//Calculate common part of both images 
 	cmn = edgesX.mul(edgesY, 1.0 / 255.0);
 	//Subtract common part from Y image (avoid recalculating common parts in 2nd propagation)
 	cv::subtract(edgesY, cmn, edgesY);
 
 	//Reintroduce frame
-
-	//Should i add frame that is propagated or one that is lost?
 	AddFrameVertical(edgesX);
 	AddFrameHorizontal(edgesY);
 

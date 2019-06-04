@@ -5,7 +5,7 @@
 #include "Gator.h"
 #include "quality_metrics_OpenCV.h"
 
-#define SHOWRES 
+//#define SHOWRES 
 #define EXPORT
 
 thread_local std::mt19937 gen{ std::random_device{}() };
@@ -27,8 +27,9 @@ T random(T min, T max) {
 int main()
 {	
 	//Import and creation of Mats
-
-	std::string path = "C:\\hud2k.bmp";
+	std::string filename = "baboon_gray";
+	std::string path = "C:\\"+filename+".bmp";
+	filename = "out//Export//"+filename;
 	cv::Mat_<Pix> holoXSRC, holoYSRC;
 	cv::Mat cmn;
 	cv::Mat	src = cv::imread(path, cv::IMREAD_GRAYSCALE);
@@ -41,6 +42,7 @@ int main()
 	cv::Rect roi = cv::Rect(holoXSRC.cols / 4, holoXSRC.rows / 4, holoXSRC.cols / 2, holoXSRC.rows / 2);
 
 	cv::Mat ref = Edge(src);
+	cv::Sobel(src, ref, CV_8UC1, 1, 1);
 	AddFrame(ref);
 	cv::Mat_<Pix> SRC2d = AddZeroPhase(ref);
 	cv::Mat holoTest = SRC2d.clone();
@@ -63,7 +65,7 @@ int main()
 	const float iP = 5e-7f;
 	const float iD = 10e-3f;
 	float progress = 0;
-
+	
 	/*
 		ASDX(holoXSRC, mind,minpx,minpy,l);
 		SaveResults(holoXSRC, "1stProp");
@@ -85,42 +87,42 @@ int main()
 		//frames in input are okay
 
 		//THE MAIN 1D VS 2D LOGIC
-		/*SaveResults(holoXSRC,"ramkaX");
-		ShowInt(holoXSRC(roi));
+		
+		
+		//X propagation of X image
+		//ShowInt(holoXSRC(roi));
 		ASDX(holoXSRC, mind, minpx, minpy, l);
 		NormAmp(holoXSRC);
+		SaveResults(holoXSRC, filename + "Holo_X_");
 		ASDX(holoXSRC, -mind, minpx, minpy, l);
-		ShowInt(holoXSRC(roi));
+		//ShowInt(holoXSRC(roi));
 
-		ShowInt(holoYSRC(roi));
 
+		//Y propagation of Y image
+		//ShowInt(holoYSRC(roi));
 		ASDY(holoYSRC, mind, minpx, minpy, l);
 		NormAmp(holoYSRC);
+		SaveResults(holoYSRC, filename + "Holo_Y_");
 		ASDY(holoYSRC, -mind, minpx, minpy, l);
 
-		ShowInt(holoXSRC(roi));
-		ShowInt(holoYSRC(roi));
+		//Display and save results
 
-
-		SaveResults(holoXSRC, "holoX", 1);
-		SaveResults(holoYSRC, "holoY", 1);
+		//ShowInt(holoXSRC(roi));
+		//ShowInt(holoYSRC(roi));
+		SaveResults(holoXSRC, filename+"Reconstruction_X_");
+		SaveResults(holoYSRC, filename+"Reconstruction_Y_");
 
 		auto holo3 = AddAmplitudes(holoXSRC, holoYSRC);
-		SaveResults(holo3, "holo3", 1);
+		SaveResults(holo3, filename+"1D_Reconstrucions_SUM_");
 
-		ShowInt(holo3(roi));
-	*/
-	ShowPhase(SRC2d);
+		//ShowInt(holo3(roi));
+	
 	ASD(SRC2d, mind, minpx, minpy, l);
-	ShowPhase(SRC2d);
-
 	NormAmp(SRC2d);
-	ShowPhase(SRC2d);
-
+	SaveResults(SRC2d, filename + "2DHOLO_");
 	ASD(SRC2d, -mind, minpx, minpy, l);
 
-	ShowInt(SRC2d(roi));
-	SaveResults(SRC2d, "odtworzenieKlasyczne");
+	SaveResults(SRC2d, filename+"2D reconstruction");
 	//	LoopOfDeath(holoXSRC, holoYSRC,SRC2d, minpx, minpy, l, mind, maxP, maxD, iP, iD,ref,1);
 
 
