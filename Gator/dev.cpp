@@ -28,7 +28,7 @@ int main()
 {	
 	//Import and creation of Mats
 
-	std::string path = "C:\\test4.bmp";
+	std::string path = "C:\\hud2k.bmp";
 	cv::Mat_<Pix> holoXSRC, holoYSRC;
 	cv::Mat cmn;
 	cv::Mat	src = cv::imread(path, cv::IMREAD_GRAYSCALE);
@@ -52,7 +52,7 @@ int main()
 	const float minpx = 3.74e-6f;
 	const float	minpy = 3.74e-6f;
 	const float l = 632.8e-9f;
-	const float mind = 450e-3f;
+	const float mind = 600e-3f;
 
 	//Ultra bad 2D prop, okay 1D
 	//mind = 450e-3f;
@@ -64,64 +64,63 @@ int main()
 	const float iD = 10e-3f;
 	float progress = 0;
 
-/*
-	ASDX(holoXSRC, mind,minpx,minpy,l);
-	SaveResults(holoXSRC, "1stProp");
-	
-	NormAmp(holoXSRC);
-	SaveResults(holoXSRC, "1stPropNorm");
+	/*
+		ASDX(holoXSRC, mind,minpx,minpy,l);
+		SaveResults(holoXSRC, "1stProp");
 
-	ASDX(holoXSRC, -mind,minpx,minpy,l); 
-	SaveResults(holoXSRC, "2ndProp");
+		NormAmp(holoXSRC);
+		SaveResults(holoXSRC, "1stPropNorm");
 
-*/
+		ASDX(holoXSRC, -mind,minpx,minpy,l);
+		SaveResults(holoXSRC, "2ndProp");
 
-	// FRAME IS FUCKED
-	//Pixels in the corners are missing
-	//artifacts in Yprop are results of bad/uncomplete frame
-	//check width of narrowest zones in phase - 2pix= bad, 4+pix=okay (dont fight nyquist)
-	//Eventually this leads to propagation of multi thousand pixel wide holograms
-	//Transposition in 2D propagation is big chokepoint!!!!!!!!!!!! 
-	//How to avoid 
-//Frame experiments
-	//SaveResults(holoXSRC, "FrameX");
-	//SaveResults(holoYSRC, "FrameY");
-	//SaveResults(SRC2d, "Frame2D");
-	//frames in input are okay
-	//in output corners of frame are moved 1px inwards
-	//WTF
-
-	//THE MAIN 1D VS 2D LOGIC
-
-	ShowInt(holoXSRC(roi));
-	ASDX(holoXSRC, mind, minpx, minpy, l);
-	NormAmp(holoXSRC);
-	ASDX(holoXSRC, -mind, minpx, minpy, l);
-	ShowInt(holoXSRC(roi));
-
-	ShowInt(holoYSRC(roi));
-
-	ASDY(holoYSRC, mind, minpx, minpy, l);
-	NormAmp(holoYSRC);
-	ASDY(holoYSRC, -mind, minpx, minpy, l);
-
-	ShowInt(holoXSRC(roi));
-	ShowInt(holoYSRC(roi));
+	*/
 
 
-	SaveResults(holoXSRC, "holoX", 1);
-	SaveResults(holoYSRC, "holoY", 1);
+	//FRAME WITHOUT CORNERS 
+	//Frame experiments
+		//SaveResults(holoXSRC, "FrameX");
+		//SaveResults(holoYSRC, "FrameY");
+		//SaveResults(SRC2d, "Frame2D");
+		//frames in input are okay
 
-	auto holo3 = AddAmplitudes(holoXSRC, holoYSRC);
-	SaveResults(holo3, "holo3", 1);
+		//THE MAIN 1D VS 2D LOGIC
+		/*SaveResults(holoXSRC,"ramkaX");
+		ShowInt(holoXSRC(roi));
+		ASDX(holoXSRC, mind, minpx, minpy, l);
+		NormAmp(holoXSRC);
+		ASDX(holoXSRC, -mind, minpx, minpy, l);
+		ShowInt(holoXSRC(roi));
 
-	ShowInt(holo3(roi));
+		ShowInt(holoYSRC(roi));
 
+		ASDY(holoYSRC, mind, minpx, minpy, l);
+		NormAmp(holoYSRC);
+		ASDY(holoYSRC, -mind, minpx, minpy, l);
+
+		ShowInt(holoXSRC(roi));
+		ShowInt(holoYSRC(roi));
+
+
+		SaveResults(holoXSRC, "holoX", 1);
+		SaveResults(holoYSRC, "holoY", 1);
+
+		auto holo3 = AddAmplitudes(holoXSRC, holoYSRC);
+		SaveResults(holo3, "holo3", 1);
+
+		ShowInt(holo3(roi));
+	*/
+	ShowPhase(SRC2d);
 	ASD(SRC2d, mind, minpx, minpy, l);
+	ShowPhase(SRC2d);
+
 	NormAmp(SRC2d);
+	ShowPhase(SRC2d);
+
 	ASD(SRC2d, -mind, minpx, minpy, l);
 
 	ShowInt(SRC2d(roi));
+	SaveResults(SRC2d, "odtworzenieKlasyczne");
 	//	LoopOfDeath(holoXSRC, holoYSRC,SRC2d, minpx, minpy, l, mind, maxP, maxD, iP, iD,ref,1);
 
 

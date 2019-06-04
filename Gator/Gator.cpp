@@ -202,11 +202,15 @@ void AddFrameVertical(cv::Mat m) {
 
 		if (col == 0 || col == (m.cols - 1))
 		{
-			pix = 255;
-		}
+				pix = 255;
+				}
 		else
 		{
 			return;
+		}
+		if (row == 0 || row == (m.rows - 1)) {
+			if (col == 0 || col == (m.cols - 1))
+				pix = 0;
 		}
 	});
 }
@@ -216,14 +220,19 @@ void AddFrameHorizontal(cv::Mat m) {
 		int row = pos[0];
 		int col = pos[1];
 
-		if (row == 0 || row == (m.rows - 1) )
+		if (row == 0 || row == (m.rows - 1))
 		{
-			pix = 255;
+				pix = 255;	
 		}
 		else
 		{
 			return;
 		}
+		if (row == 0 || row == (m.rows - 1)) {
+			if (col == 0 || col == (m.cols - 1))
+				pix = 0;
+		}
+
 	});
 }
 
@@ -241,8 +250,8 @@ void ConvertToEdge(cv::Mat src, cv::Mat_<Pix> &holoX, cv::Mat_<Pix> &holoY, cv::
 	//Reintroduce frame
 
 	//Should i add frame that is propagated or one that is lost?
-	AddFrameVertical(edgesY);
-	AddFrameHorizontal(edgesX);
+	AddFrameVertical(edgesX);
+	AddFrameHorizontal(edgesY);
 
 	cv::imwrite("x.bmp", edgesX);
 	cv::imwrite("y.bmp", edgesY);
